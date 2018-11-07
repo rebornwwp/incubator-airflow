@@ -372,6 +372,10 @@ function updateQueryStringParameter(uri, key, value) {
     });
 
     $("#rerun_dag").click(function() {
+      if (window.location.pathname === '/admin/airflow/tree') {
+        alert('Please rerun the DAG from graph view.');
+        return;
+      }
       var rerun_starting_task = dag_id + "." + task_id
       {% if controller_dag_id %}
         rerun_starting_task = "{{controller_dag_id}}." + rerun_starting_task
