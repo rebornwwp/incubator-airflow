@@ -54,6 +54,12 @@
               Back to {{ dag.parent_dag.dag_id }}</a>
           </li>
       {% endif %}
+      {% if controller_dag_id %}
+        <li class="never_active"><a href="{{ url_for("airflow.graph", dag_id=controller_dag_id.split('.')[-1], execution_date=execution_date) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            Up to {{ controller_dag_id }}</a>
+        </li>
+      {% endif %}
       <li><a href="{{ url_for("airflow.graph", dag_id=dag.dag_id, root=root) }}">
           <span class="glyphicon glyphicon-certificate" aria-hidden="true"></span>
         Graph View</a></li>
@@ -123,6 +129,12 @@
           <div id="div_btn_subdag">
               <button id="btn_subdag" type="button" class="btn btn-primary">
                 Zoom into Sub DAG
+              </button>
+              <hr/>
+          </div>
+          <div id="div_btn_external_dag">
+              <button id="btn_external_dag" type="button" class="btn btn-primary">
+                  Down to external DAG
               </button>
               <hr/>
           </div>
@@ -247,7 +259,7 @@ function updateQueryStringParameter(uri, key, value) {
     var task_id = '';
     var exection_date = '';
     var subdag_id = '';
-    function call_modal(t, d, sd) {
+    function call_modal(t, d, sd, ed) {
       task_id = t;
       loc = String(window.location);
       $("#btn_filter").on("click", function(){
@@ -264,6 +276,12 @@ function updateQueryStringParameter(uri, key, value) {
         else {
             $("#div_btn_subdag").show();
             subdag_id = "{{ dag.dag_id }}."+t;
+        }
+        if (ed === undefined) {
+          $("#div_btn_external_dag").hide();
+        }
+        else {
+          $("#div_btn_external_dag").show();
         }
     }
 
@@ -369,6 +387,13 @@ function updateQueryStringParameter(uri, key, value) {
       }
       url = "{{ url_for('airflow.paused') }}" + '?is_paused=' + is_paused + '&dag_id=' + dag_id;
       $.ajax(url);
+    });
+
+    $("#btn_external_dag").click(function() {
+      url = "{{ url_for('airflow.graph') }}" +
+        "?dag_id=" + task_id +
+        "&execution_date=" + execution_date;
+      window.location = url;
     });
 
     $("#rerun_dag").click(function() {

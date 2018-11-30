@@ -1311,10 +1311,12 @@ class Airflow(BaseView):
         )
         dr_choices = []
         dr_state = None
+        controller_dag_id = None
         for dr in drs:
             dr_choices.append((dr.execution_date.isoformat(), dr.run_id))
             if dttm == dr.execution_date:
                 dr_state = dr.state
+                controller_dag_id = dr.conf.get('controller_dag_id') if dr.conf else ''
 
         class GraphForm(Form):
             execution_date = SelectField("DAG run", choices=dr_choices)
@@ -1345,6 +1347,7 @@ class Airflow(BaseView):
         return self.render(
             'airflow/graph.html',
             dag=dag,
+            controller_dag_id=controller_dag_id,
             form=form,
             width=request.args.get('width', "100%"),
             height=request.args.get('height', "800"),
