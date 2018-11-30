@@ -367,6 +367,14 @@
         }
     );
 
+    $('a').on('click', function(event) {
+        if ($(this).attr('href').match('/admin/airflow/gantt')) {
+            console.log('Go to Gantt with current dag run.')
+            event.preventDefault()
+            query = window.location.search
+            window.location.href = '/admin/airflow/gantt' + query
+        }
+    });
     </script>
 
 

@@ -219,6 +219,10 @@
               Downstream
             </button>
           </span>
+          <hr/>
+          <button id="rerun_dag" type="button" class="btn btn-warning">
+            Rerun DAG from here
+          </button>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -388,6 +392,21 @@ function updateQueryStringParameter(uri, key, value) {
     $("#btn_external_dag").click(function() {
       url = "{{ url_for('airflow.graph') }}" +
         "?dag_id=" + task_id +
+        "&execution_date=" + execution_date;
+      window.location = url;
+    });
+
+    $("#rerun_dag").click(function() {
+      if (window.location.pathname === '/admin/airflow/tree') {
+        alert('Please rerun the DAG from graph view.');
+        return;
+      }
+      var rerun_starting_task = dag_id + "." + task_id
+      {% if controller_dag_id %}
+        rerun_starting_task = "{{controller_dag_id}}." + rerun_starting_task
+      {% endif %}
+      url = "/admin/rerun_dag?" +
+        "rerun_starting_task=" + rerun_starting_task +
         "&execution_date=" + execution_date;
       window.location = url;
     });
