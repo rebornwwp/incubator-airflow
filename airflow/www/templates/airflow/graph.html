@@ -126,7 +126,7 @@
         task = tasks[d];
         if (task.task_type == "SubDagOperator")
             call_modal(d, execution_date, true);
-        else if (task.task_type == "TriggerExternalDagRunOperator")
+        else if (task.task_type == "TriggerExternalDagRunOperator" || task.task_type == "LoopingExternalDagRunOperator")
             call_modal(d, execution_date, undefined, true);
         else
             call_modal(d, execution_date);
