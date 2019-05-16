@@ -202,7 +202,7 @@
             </button>
           </span>
           <hr/>
-          <button id="btn_success" type="button" class="btn btn-primary">
+          <button id="btn_success" type="button" class="btn btn-primary" disabled=disabled>
             Mark Success
           </button>
           <span class="btn-group">
@@ -222,6 +222,9 @@
           <hr/>
           <button id="rerun_dag" type="button" class="btn btn-warning">
             Rerun DAG from here
+          </button>
+          <button id="dm_mark_succss_btn" type="button" class="btn btn-success">
+            Mark Success
           </button>
         </div>
         <div class="modal-footer">
@@ -363,6 +366,15 @@ function updateQueryStringParameter(uri, key, value) {
 
       window.location = url;
     });
+
+    $("#dm_mark_succss_btn").click(function() {
+      url = "/admin/task_instance" +
+        "?dag_id=" + encodeURIComponent(dag_id) +
+        "&task_id=" + encodeURIComponent(task_id) +
+        "&execution_date=" + execution_date +
+        "&operation=mark_success";
+        window.location = url;
+    })
 
     $("#btn_gantt").click(function(){
       url = "{{ url_for('airflow.gantt') }}" +
