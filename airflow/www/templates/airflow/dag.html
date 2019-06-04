@@ -402,10 +402,27 @@ function updateQueryStringParameter(uri, key, value) {
     });
 
     $("#btn_external_dag").click(function() {
-      url = "{{ url_for('airflow.graph') }}" +
-        "?dag_id=" + task_id +
-        "&execution_date=" + execution_date;
-      window.location = url;
+      external_dag_id_url = '/admin/supplementary_apis/dag/'
+          + dag_id + '/task/' + task_id
+          + '/execution_date/' + execution_date + '/external_dag_id';
+      $.ajax({
+        url: external_dag_id_url,
+        type: "get",
+        success: function(response) {
+          external_dag_id = response
+          url = "{{ url_for('airflow.graph') }}" +
+            "?dag_id=" + external_dag_id +
+            "&execution_date=" + execution_date;
+          window.location = url;
+        },
+        error: function(xhr) {
+          // if no external dag id set, we use task id as external dag id
+          url = "{{ url_for('airflow.graph') }}" +
+            "?dag_id=" + task_id +
+            "&execution_date=" + execution_date;
+          window.location = url;
+        }
+      });
     });
 
     $("#rerun_dag").click(function() {
