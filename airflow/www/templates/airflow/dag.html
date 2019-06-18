@@ -54,6 +54,12 @@
               Back to {{ dag.parent_dag.dag_id }}</a>
           </li>
       {% endif %}
+      {% if controller_dag_id %}
+        <li class="never_active"><a href="{{ url_for("airflow.graph", dag_id=controller_dag_id.split('.')[-1], execution_date=execution_date) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            Up to {{ controller_dag_id }}</a>
+        </li>
+      {% endif %}
       <li><a href="{{ url_for("airflow.graph", dag_id=dag.dag_id, root=root, execution_date=execution_date) }}">
           <span class="glyphicon glyphicon-certificate" aria-hidden="true"></span>
         Graph View</a></li>
@@ -137,6 +143,12 @@
           <div id="div_btn_subdag">
               <button id="btn_subdag" type="button" class="btn btn-primary">
                 Zoom into Sub DAG
+              </button>
+              <hr/>
+          </div>
+          <div id="div_btn_external_dag">
+              <button id="btn_external_dag" type="button" class="btn btn-primary">
+                  Down to external DAG
               </button>
               <hr/>
           </div>
@@ -243,7 +255,7 @@
               </label>
             </span>
             <hr/>
-            <button id="btn_success" type="button" class="btn btn-primary"
+            <button id="btn_success" type="button" class="btn btn-primary" disabled=disabled
                 data-action="{{ url_for('airflow.success') }}">
               Mark Success
             </button>
@@ -266,6 +278,14 @@
               </label>
             </span>
           </form>
+          <hr />
+          <button id="rerun_dag" type="button" class="btn btn-warning">
+            Rerun DAG from here
+          </button>
+          <hr />
+          <button id="dm_mark_succss_btn" type="button" class="btn btn-success">
+            Mark Success
+          </button>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -342,7 +362,7 @@ function updateQueryStringParameter(uri, key, value) {
     var task_id = '';
     var exection_date = '';
     var subdag_id = '';
-    function call_modal(t, d, try_numbers, sd) {
+    function call_modal(t, d, try_numbers, sd, ed) {
       task_id = t;
       loc = String(window.location);
       $("#btn_filter").on("click", function(){
@@ -359,6 +379,11 @@ function updateQueryStringParameter(uri, key, value) {
       else {
           $("#div_btn_subdag").show();
           subdag_id = "{{ dag.dag_id }}."+t;
+      }
+      if (ed === undefined) {
+        $("#div_btn_external_dag").hide();
+      } else {
+        $("#div_btn_external_dag").show();
       }
 
       $("#try_index > li").remove();
@@ -421,8 +446,9 @@ function updateQueryStringParameter(uri, key, value) {
     });
 
     $("#btn_subdag").click(function(){
+      dag_id = subdag_id.split('.').pop()
       url = "{{ url_for( 'airflow.' + dag.get_default_view() ) }}" +
-        "?dag_id=" + encodeURIComponent(subdag_id) +
+        "?dag_id=" + encodeURIComponent(dag_id) +
         "&execution_date=" + encodeURIComponent(execution_date);
       window.location = url;
     });
@@ -479,5 +505,51 @@ function updateQueryStringParameter(uri, key, value) {
       window.location = "{{ url_for('dagrun.edit_view') }}?id=" + encodeURIComponent(id);
     });
 
+    $("#rerun_dag").click(function () {
+      if (window.location.pathname === '/admin/airflow/tree') {
+        alert('please rerun the DAG from gragh view.');
+        return;
+      }
+
+      let rerun_starting_task = dag_id + "." + task_id
+      {% if controller_dag_id %}
+        rerun_starting_task = "{{controller_dag_id}}." + rerun_starting_task
+      {% endif %}
+      let url = `/admin/rerun_dag?rerun_starting_task${rerun_starting_task}&execution_date=${exection_date}`;
+      window.location = url;
+    })
+
+    $("#dm_mark_succss_btn").click(function() {
+      url = "/admin/task_instance" +
+        "?dag_id=" + encodeURIComponent(dag_id) +
+        "&task_id=" + encodeURIComponent(task_id) +
+        "&execution_date=" + encodeURIComponent(execution_date) +
+        "&operation=mark_success";
+        window.location = url;
+    })
+
+    $("#btn_external_dag").click(function() {
+      external_dag_id_url = '/admin/supplementary_apis/dag/'
+          + dag_id + '/task/' + task_id
+          + '/execution_date/' + execution_date + '/external_dag_id';
+      $.ajax({
+        url: external_dag_id_url,
+        type: "get",
+        success: function(response) {
+          external_dag_id = response
+          url = "{{ url_for('airflow.graph') }}" +
+            "?dag_id=" + external_dag_id +
+            "&execution_date=" + execution_date;
+          window.location = url;
+        },
+        error: function(xhr) {
+          // if no external dag id set, we use task id as external dag id
+          url = "{{ url_for('airflow.graph') }}" +
+            "?dag_id=" + task_id +
+            "&execution_date=" + execution_date;
+          window.location = url;
+        }
+      });
+    });
   </script>
 {% endblock %}

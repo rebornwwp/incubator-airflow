@@ -134,7 +134,9 @@
         task = tasks[d];
         if (task.task_type == "SubDagOperator")
             call_modal(d, execution_date, task_instances[d].try_number, true);
-        else
+        else if (task.task_type == "TriggerExternalDagRunOperator" || task.task_type == "LoopingExternalDagRunOperator") {
+           call_modal(d, execution_date, undefined, true);
+        } else
             call_modal(d, execution_date,task_instances[d].try_number);
     });
 
@@ -376,6 +378,14 @@
         }
     );
 
+    $('a').on('click', function(event) {
+        if ($(this).attr('href').match('/admin/airflow/gantt')) {
+            console.log('Go to Gantt with current dag run.')
+            event.preventDefault()
+            query = window.location.search
+            window.location.href = '/admin/airflow/gantt' + query
+        }
+    });
 </script>
 
 

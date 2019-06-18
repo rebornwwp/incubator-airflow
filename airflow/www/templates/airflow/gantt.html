@@ -64,6 +64,16 @@
       .tickFormat("%H:%M:%S");
     gantt(data.tasks);
   });
+
+  $('a').on('click', function(event) {
+        if ($(this).attr('href').match('/admin/airflow/graph')) {
+            query = window.location.search
+            if (query.match("execution_date=")) {
+              event.preventDefault()
+              window.location.href = '/admin/airflow/graph' + query
+            }
+        }
+  });
 </script>
 
 {% endblock %}

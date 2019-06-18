@@ -346,10 +346,12 @@ def get_date_time_num_runs_dag_runs_form_data(request, session, dag):
     )
     dr_choices = []
     dr_state = None
+    controller_dag_id = None
     for dr in drs:
         dr_choices.append((dr.execution_date.isoformat(), dr.run_id))
         if dttm == dr.execution_date:
             dr_state = dr.state
+            controller_dag_id = dr.conf.get('controller_dag_id') if dr.conf else ''
 
     # Happens if base_date was changed and the selected dag run is not in result
     if not dr_state and drs:
@@ -364,6 +366,7 @@ def get_date_time_num_runs_dag_runs_form_data(request, session, dag):
         'execution_date': dttm.isoformat(),
         'dr_choices': dr_choices,
         'dr_state': dr_state,
+        'controller_dag_id': controller_dag_id,
     }
 
 
@@ -1587,6 +1590,8 @@ class Airflow(BaseView):
         dt_nr_dr_data = get_date_time_num_runs_dag_runs_form_data(request, session, dag)
         dt_nr_dr_data['arrange'] = arrange
         dttm = dt_nr_dr_data['dttm']
+        controller_dag_id = dt_nr_dr_data['controller_dag_id']
+        del dt_nr_dr_data['controller_dag_id']
 
         class GraphForm(DateTimeWithNumRunsWithDagRunsForm):
             arrange = SelectField("Layout", choices=(
@@ -1616,6 +1621,7 @@ class Airflow(BaseView):
         return self.render(
             'airflow/graph.html',
             dag=dag,
+            controller_dag_id=controller_dag_id,
             form=form,
             width=request.args.get('width', "100%"),
             height=request.args.get('height', "800"),
