@@ -515,7 +515,7 @@ function updateQueryStringParameter(uri, key, value) {
       {% if controller_dag_id %}
         rerun_starting_task = "{{controller_dag_id}}." + rerun_starting_task
       {% endif %}
-      let url = `/admin/rerun_dag?rerun_starting_task${rerun_starting_task}&execution_date=${exection_date}`;
+      let url = `/admin/rerun_dag?rerun_starting_task=${rerun_starting_task}&execution_date=${execution_date}`;
       window.location = url;
     })
 
