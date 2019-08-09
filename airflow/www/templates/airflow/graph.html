@@ -134,10 +134,11 @@
         task = tasks[d];
         if (task.task_type == "SubDagOperator")
             call_modal(d, execution_date, task_instances[d].try_number, true);
-        else if (task.task_type == "TriggerExternalDagRunOperator" || task.task_type == "LoopingExternalDagRunOperator") {
-           call_modal(d, execution_date, undefined, true);
+        else if (task.task_type == "TriggerExternalDagRunOperator"
+            || task.task_type == "LoopingExternalDagRunOperator") {
+            call_modal(d, execution_date, task_instances[d].try_number, true);
         } else
-            call_modal(d, execution_date,task_instances[d].try_number);
+            call_modal(d, execution_date, task_instances[d].try_number);
     });
 
 
