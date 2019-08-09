@@ -132,12 +132,20 @@
 
     d3.selectAll("g.node").on("click", function(d){
         task = tasks[d];
+
+        if (d in task_instances) {
+            try_number = task_instances[d].try_number;
+        } else {
+            try_number = 0;
+        }
+
         if (task.task_type == "SubDagOperator")
-            call_modal(d, execution_date, task_instances[d].try_number, true);
-        else if (task.task_type == "TriggerExternalDagRunOperator" || task.task_type == "LoopingExternalDagRunOperator") {
-           call_modal(d, execution_date, undefined, true);
+            call_modal(d, execution_date, try_number, true);
+        else if (task.task_type == "TriggerExternalDagRunOperator"
+            || task.task_type == "LoopingExternalDagRunOperator") {
+            call_modal(d, execution_date, undefined, true);
         } else
-            call_modal(d, execution_date,task_instances[d].try_number);
+            call_modal(d, execution_date, try_number);
     });
 
 

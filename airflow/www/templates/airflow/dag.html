@@ -202,7 +202,7 @@
             <hr/>
             <button id="btn_clear" type="button" class="btn btn-primary"
                 title="Clearing deletes the previous state of the task instance, allowing it to get re-triggered by the scheduler or a backfill command"
-                data-action="{{ url_for('airflow.clear') }} " disabled=disabled
+                data-action="{{ url_for('airflow.clear') }}" disabled=disabled
                 >Clear
             </button>
             <span class="btn-group" data-toggle="buttons">
@@ -282,9 +282,8 @@
           <button id="rerun_dag" type="button" class="btn btn-warning">
             Rerun DAG from here
           </button>
-          <hr />
-          <button id="dm_mark_succss_btn" type="button" class="btn btn-success">
-            Mark Success
+          <button id="dm_mark_succss_btn" type="button" class="btn btn-primary">
+            Tasks Instance Operator
           </button>
         </div>
         <div class="modal-footer">
@@ -523,30 +522,30 @@ function updateQueryStringParameter(uri, key, value) {
       url = "/admin/task_instance" +
         "?dag_id=" + encodeURIComponent(dag_id) +
         "&task_id=" + encodeURIComponent(task_id) +
-        "&execution_date=" + encodeURIComponent(execution_date) +
-        "&operation=mark_success";
+        "&execution_date=" + encodeURIComponent(execution_date);
         window.location = url;
     })
 
     $("#btn_external_dag").click(function() {
-      external_dag_id_url = '/admin/supplementary_apis/dag/'
-          + dag_id + '/task/' + task_id
-          + '/execution_date/' + execution_date + '/external_dag_id';
+      external_dag_id_url = '/admin/supplementary_apis/dag/' + encodeURIComponent(dag_id)
+        + '/task/' + encodeURIComponent(task_id)
+        + '/execution_date/' + encodeURIComponent(execution_date)
+        + '/external_dag_id';
       $.ajax({
         url: external_dag_id_url,
         type: "get",
         success: function(response) {
           external_dag_id = response
           url = "{{ url_for('airflow.graph') }}" +
-            "?dag_id=" + external_dag_id +
-            "&execution_date=" + execution_date;
+            "?dag_id=" + encodeURIComponent(external_dag_id) +
+            "&execution_date=" + encodeURIComponent(execution_date);
           window.location = url;
         },
         error: function(xhr) {
           // if no external dag id set, we use task id as external dag id
           url = "{{ url_for('airflow.graph') }}" +
-            "?dag_id=" + task_id +
-            "&execution_date=" + execution_date;
+            "?dag_id=" + encodeURIComponent(task_id) +
+            "&execution_date=" + encodeURIComponent(execution_date);
           window.location = url;
         }
       });
