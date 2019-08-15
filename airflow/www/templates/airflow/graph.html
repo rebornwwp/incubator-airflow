@@ -136,11 +136,8 @@
             try_number = task_instances[d].try_number;
         else
             try_number = 0;
-        if (task.task_type == "SubDagOperator"
-            || task.task_type == "TriggerExternalDagRunOperator"
-            || task.task_type == "LoopingExternalDagRunOperator") {
-            call_modal(d, execution_date, try_number, true)
-        }
+        if (task.task_type == "SubDagOperator")
+            call_modal(d, execution_date, try_number, true);
         else
             call_modal(d, execution_date, try_number);
     });
