@@ -54,6 +54,12 @@
               Back to {{ dag.parent_dag.dag_id }}</a>
           </li>
       {% endif %}
+      {% if controller_dag_id %}
+        <li class="never_active"><a href="{{ url_for("airflow.graph", dag_id=controller_dag_id.split('.')[-1], execution_date=execution_date) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            Up to {{ controller_dag_id }}</a>
+        </li>
+      {% endif %}
       <li><a href="{{ url_for("airflow.graph", dag_id=dag.dag_id, root=root, execution_date=execution_date) }}">
           <span class="glyphicon glyphicon-certificate" aria-hidden="true"></span>
         Graph View</a></li>
@@ -198,6 +204,7 @@
             <button id="btn_clear" type="button" class="btn btn-primary"
                 title="Clearing deletes the previous state of the task instance, allowing it to get re-triggered by the scheduler or a backfill command"
                 data-action="{{ url_for('airflow.clear') }}"
+                disabled="disabled"
                 >Clear
             </button>
             <span class="btn-group" data-toggle="buttons">
@@ -256,7 +263,7 @@
             </span>
             <hr/>
             <button id="btn_success" type="button" class="btn btn-primary"
-                data-action="{{ url_for('airflow.success') }}">
+                data-action="{{ url_for('airflow.success') }}" disabled="disabled">
               Mark Success
             </button>
             <span class="btn-group" data-toggle="buttons">
